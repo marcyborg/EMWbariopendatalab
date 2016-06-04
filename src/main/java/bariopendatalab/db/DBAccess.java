@@ -42,8 +42,10 @@ public class DBAccess {
     }
 
     public void insert(String type, String description, String address, String note, Document loc) {
-        Document doc = new Document("type", type)
-                .append("description", description);
+        Document doc = new Document("type", type);
+        if (description != null) {
+            doc.append("description", description);
+        }
         if (address != null) {
             doc.append("address", address);
         }

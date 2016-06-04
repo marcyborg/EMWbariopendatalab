@@ -36,13 +36,34 @@ public class ImportData {
             i = 2;
             for (CSVRecord record : records) {
                 String type = record.get("Tipologia");
+                if (type == null || type.length() == 0) {
+                    Logger.getLogger(ImportData.class.getName()).log(Level.WARNING, "No type in line {0}", i);
+                }
+                
                 String description = record.get("Nome");
+                if (description != null && description.length() == 0) {
+                    description = null;
+                }
+                
                 String address = record.get("Indirizzo");
+                if (address != null && address.length() == 0) {
+                    address = null;
+                }
+                
                 String civ = record.get("Civ");
+                if (civ != null && civ.length() == 0) {
+                    civ = null;
+                }
+                
                 if (address != null && civ != null) {
                     address += ", " + civ;
                 }
+                
                 String note = record.get("Note");
+                if (note != null && note.length() == 0) {
+                    note = null;
+                }
+                
                 String longitudine = record.get("Longitudine");
                 String latitudine = record.get("Latitudine");
                 if (longitudine != null && latitudine != null) {
