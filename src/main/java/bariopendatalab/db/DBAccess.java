@@ -105,6 +105,19 @@ public class DBAccess {
         response.append("results", list);
         return response.toJson();
     }
+    
+    public List<Document> poiListByMunicipio(int id) throws Exception {
+        MongoDatabase database = client.getDatabase(DBNAME);
+        MongoCollection<Document> collMunicipi = database.getCollection(COLLMUNICIPI);
+        Document municipioDoc = collMunicipi.find(new Document().append("properties.OBJECTID", id)).first();
+        MongoCollection<Document> collection = database.getCollection(COLLNAME);
+        FindIterable<Document> documents = collection.find(new Document("geometry", new Document("$geoWithin", new Document("$geometry", municipioDoc.get("geometry")))));
+        List<Document> list = new ArrayList<>();
+        for (Document doc : documents) {
+            list.add(doc);
+        }
+        return list;
+    }
 
     public String getMunicipi() throws Exception {
         MongoDatabase database = client.getDatabase(DBNAME);

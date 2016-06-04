@@ -6,7 +6,12 @@
 package bariopendatalab.server;
 
 import bariopendatalab.db.DBAccess;
+import bariopendatalab.life.LifeQuality;
 import com.mongodb.MongoClient;
+import java.io.File;
+import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -18,9 +23,13 @@ public class DBWrapper {
 
     private final DBAccess dba;
 
+    private final LifeQuality life;
+
     private DBWrapper() {
         MongoClient client = new MongoClient("localhost", 27017);
         dba = new DBAccess(client);
+        life = new LifeQuality(new File("weight.matrix"), dba);
+
     }
 
     public static synchronized DBWrapper getInstance() {
@@ -33,5 +42,11 @@ public class DBWrapper {
     public DBAccess getDba() {
         return dba;
     }
+
+    public LifeQuality getLife() {
+        return life;
+    }
+    
+    
 
 }

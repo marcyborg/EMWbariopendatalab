@@ -5,6 +5,7 @@
  */
 package bariopendatalab.server.api.v1;
 
+import bariopendatalab.life.LifeQuality;
 import bariopendatalab.server.DBWrapper;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -56,6 +57,18 @@ public class ODapi {
         try {
             String response = DBWrapper.getInstance().getDba().poiByMunicipio(id);
             return Response.ok(response).build();
+        } catch (Exception ex) {
+            Logger.getLogger(ODapi.class.getName()).log(Level.SEVERE, null, ex);
+            return Response.serverError().build();
+        }
+    }
+
+    @GET
+    @Path("score/{id: [0-9]+}/{servizi}/{ambiente}/{cultura}/{salute}")
+    public Response score(@PathParam("id") int id, @PathParam("servizi") double servizi, @PathParam("ambiente") double ambiente, @PathParam("cultura") double cultura, @PathParam("salute") double salute) {
+        try {
+            double score = DBWrapper.getInstance().getLife().score(new double[]{servizi, ambiente, cultura, salute}, id);
+            return Response.ok(score).build();
         } catch (Exception ex) {
             Logger.getLogger(ODapi.class.getName()).log(Level.SEVERE, null, ex);
             return Response.serverError().build();
