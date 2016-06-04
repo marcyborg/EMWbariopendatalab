@@ -28,8 +28,13 @@ public class DBWrapper {
     private DBWrapper() {
         MongoClient client = new MongoClient("localhost", 27017);
         dba = new DBAccess(client);
-        life = new LifeQuality(new File("weight.matrix"), dba);
-
+        String filename = "weight.matrix";
+        try {
+            filename = ServerConfig.getInstance().getProperty("matrix.file");
+        } catch (IOException ex) {
+            Logger.getLogger(DBWrapper.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        life = new LifeQuality(new File(filename), dba);
     }
 
     public static synchronized DBWrapper getInstance() {
@@ -46,7 +51,5 @@ public class DBWrapper {
     public LifeQuality getLife() {
         return life;
     }
-    
-    
 
 }

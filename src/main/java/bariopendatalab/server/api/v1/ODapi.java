@@ -5,7 +5,6 @@
  */
 package bariopendatalab.server.api.v1;
 
-import bariopendatalab.life.LifeQuality;
 import bariopendatalab.server.DBWrapper;
 import java.util.logging.Level;
 import java.util.logging.Logger;
