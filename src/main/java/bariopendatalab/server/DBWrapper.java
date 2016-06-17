@@ -5,8 +5,10 @@
  */
 package bariopendatalab.server;
 
+import bariopendatalab.Utils;
 import bariopendatalab.db.DBAccess;
 import bariopendatalab.life.LifeQuality;
+import bariopendatalab.life.NormalizationType;
 import com.mongodb.MongoClient;
 import java.io.File;
 import java.io.IOException;
@@ -23,7 +25,7 @@ public class DBWrapper {
 
     private final DBAccess dba;
 
-    private final LifeQuality life;
+    private LifeQuality life;
 
     private DBWrapper() {
         MongoClient client = new MongoClient("localhost", 27017);
@@ -31,10 +33,11 @@ public class DBWrapper {
         String filename = "weight.matrix";
         try {
             filename = ServerConfig.getInstance().getProperty("matrix.file");
+            life = new LifeQuality(new File(filename), dba, Utils.getNormalizationType(ServerConfig.getInstance().getProperty("mbd.normalization")));
         } catch (IOException ex) {
             Logger.getLogger(DBWrapper.class.getName()).log(Level.SEVERE, null, ex);
+            life = new LifeQuality(new File(filename), dba, NormalizationType.NO);
         }
-        life = new LifeQuality(new File(filename), dba);
     }
 
     public static synchronized DBWrapper getInstance() {

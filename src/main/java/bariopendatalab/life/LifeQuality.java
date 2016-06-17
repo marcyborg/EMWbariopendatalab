@@ -6,12 +6,9 @@
 package bariopendatalab.life;
 
 import bariopendatalab.db.DBAccess;
-import com.google.common.collect.HashMultiset;
-import com.google.common.collect.Multiset;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
-import java.io.IOError;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -33,25 +30,28 @@ public class LifeQuality {
 
     private final DBAccess dba;
 
-    public LifeQuality(File matrixFile, DBAccess dba) {
+    private final NormalizationType normType;
+
+    public LifeQuality(File matrixFile, DBAccess dba, NormalizationType normType) {
         this.dba = dba;
+        this.normType = normType;
         w = new double[10][4];
         labels = new ArrayList<>();
         try {
-        BufferedReader reader = new BufferedReader(new FileReader(matrixFile));
-        if (reader.ready()) {
-            reader.readLine();
-        }
-        int r = 0;
-        while (reader.ready()) {
-            String[] split = reader.readLine().split("\\s+");
-            labels.add(split[0]);
-            for (int i = 1; i < split.length; i++) {
-                w[r][i - 1] = Double.parseDouble(split[i]);
+            BufferedReader reader = new BufferedReader(new FileReader(matrixFile));
+            if (reader.ready()) {
+                reader.readLine();
             }
-            r++;
-        }
-        reader.close();
+            int r = 0;
+            while (reader.ready()) {
+                String[] split = reader.readLine().split("\\s+");
+                labels.add(split[0]);
+                for (int i = 1; i < split.length; i++) {
+                    w[r][i - 1] = Double.parseDouble(split[i]);
+                }
+                r++;
+            }
+            reader.close();
         } catch (IOException ioex) {
             Logger.getLogger(LifeQuality.class.getName()).log(Level.SEVERE, null, ioex);
         }
@@ -74,9 +74,25 @@ public class LifeQuality {
             double s = 0;
             for (int j = 0; j < labels.size(); j++) {
                 Integer lw = map.get(labels.get(j));
-                if (lw==null)
-                    lw=0;
-                s += lw.doubleValue() * w[j][i];
+                if (lw == null) {
+                    lw = 0;
+                }
+                if (null != normType) switch (normType) {
+                    case NO:
+                        s += lw.doubleValue() * w[j][i];
+                        break;
+                    case POI:
+                        if (map.size() > 0) {
+                            s += lw.doubleValue() / (double) map.size() * w[j][i];
+                        } else {
+                            s += lw.doubleValue() * w[j][i];
+                        }   break;
+                    case CITY:
+                        Logger.getLogger(LifeQuality.class.getName()).log(Level.WARNING, "City normalization is not yet implemented");
+                        break;
+                    default:
+                        break;
+                }
             }
             score += userW[i] * s;
         }
